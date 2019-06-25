@@ -24,3 +24,6 @@ script: |
   cp nodes/127.0.0.1/sdk/* src/main/resources/
   ./gradlew verGJF
   ./gradlew build
+
+after_sucess:
+  - npm run coveralls
