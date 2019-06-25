@@ -7,24 +7,22 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertTrue;
+
 public class LAGCreditTest extends BaseTest {
 
-    @Autowired
-    private Web3j web3j;
-    @Autowired
-    private Credentials credentials;
+  @Autowired private Web3j web3j;
+  @Autowired private Credentials credentials;
 
+  @Test
+  public void deployAndCallHelloWorld() throws Exception {
+    // deploy contract
+    LAGCreditController lagcreditcontrol = new LAGCreditController(web3j, credentials);
+    LAGCredit sad = lagcreditcontrol.deploy();
 
-    @Test
-    public void deployAndCallHelloWorld() throws Exception {
-        // deploy contract
-        LAGCreditController lagcreditcontrol = new LAGCreditController(web3j,credentials);
-        LAGCredit sad = lagcreditcontrol.deploy();
+    LAGCredit ewe = lagcreditcontrol.load(sad.getContractAddress());
 
-        LAGCredit ewe = lagcreditcontrol.load(sad.getContractAddress());
-
-       long result =lagcreditcontrol.getTotalSupply(ewe.getContractAddress());
-        long origin =100000;
-        assertTrue(origin==result);
-    }
+    long result = lagcreditcontrol.getTotalSupply(ewe.getContractAddress());
+    long origin = 100000;
+    assertTrue(origin == result);
+  }
 }
