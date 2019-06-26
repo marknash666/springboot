@@ -1,0 +1,26 @@
+machine:
+  java:
+      version: openjdk8
+ 
+dependencies:
+  pre:
+   - curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/build_chain.sh && chmod u+x build_chain.sh
+  - bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/ci/download_bin.sh) -b master
+  - echo "127.0.0.1:4 agency1 1,2,3" > ipconf
+  - ./build_chain.sh -e bin/fisco-bcos -f ipconf -p 30300,20200,8545
+  - ./nodes/127.0.0.1/start_all.sh
+  - cp nodes/127.0.0.1/sdk/* src/main/resources/
+  - ./gradlew verGJF
+
+
+  override: 
+    - echo y | android update sdk --no-ui --filter "android-25"
+    - echo y | android update sdk --no-ui --filter "build-tools-25.0.2"
+    - echo y | android update sdk --no-ui --filter "extra-android-m2repository"
+    - echo y | android update sdk --no-ui --filter "extra-android-support"
+    - echo y | android update sdk --no-ui --filter "extra-google-m2repositor"
+    - ./gradlew dependencies || true
+
+test:
+  override:
+    - ./gradlew build
