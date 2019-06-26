@@ -1,27 +1,70 @@
 version: 2
-jobs: 
-    working_directory: /tmp/workspace
-    steps:
-      - run: echo "====================构建开始=============================="
-      - run: echo "====================构建完毕=============================="
-  deploy:
-    java:
-      version: oraclejdk8     
-    working_directory: /tmp/workspace
-    steps:
-      - run: echo "====================部署开始=============================="
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: pwd && ls -al
+jobs:
+  build:
+    docker:    
+    - image: ubuntu:14.04
+
+    working_directory: ~/my-project
+    environment:
+      TEST_REPORTS: /tmp/test-reports
+    steps:   
+
       - run:
-          name: Deploy 
-          command: |          |
-  curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/build_chain.sh && chmod u+x build_chain.sh
-  bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/ci/download_bin.sh) -b master
-  echo "127.0.0.1:4 agency1 1,2,3" > ipconf
-  ./build_chain.sh -e bin/fisco-bcos -f ipconf -p 30300,20200,8545
-  ./nodes/127.0.0.1/start_all.sh
-  cp nodes/127.0.0.1/sdk/* src/main/resources/
-  ./gradlew verGJF
-  ./gradlew build
-      - run: echo "====================部署完毕=============================="
+          command: echo 127.0.0.1 devhost | sudo tee -a /etc/hosts
+
+      # Create Postgres users and database
+      # Note the YAML heredoc '|' for nicer formatting
+      - run: |
+          sudo -u root createuser -h localhost --superuser ubuntu &&
+          sudo createdb -h localhost test_db
+      
+      - run:          
+          command: |
+            curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/build_chain.sh && chmod u+x build_chain.sh
+      bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/ci/download_bin.sh) -b master
+      echo "127.0.0.1:4 agency1 1,2,3" > ipconf
+      ./build_chain.sh -e bin/fisco-bcos -f ipconf -p 30300,20200,8545
+      ./nodes/127.0.0.1/start_all.sh
+       cp nodes/127.0.0.1/sdk/* src/main/resources/
+       ./gradlew verGJF
+          
+
+      # Save artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
+          destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports
+
+  deploy-stage:
+    docker:
+      - image: ubuntu:14.04
+    working_directory: /tmp/my-project
+    steps:
+      - run:
+          name: Deploy springboot
+          command: |
+          ./gradlew build   
+
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore:
+                - develop
+                - /feature-.*/
+      - deploy-stage:
+          requires:
+            - build
+          filters:
+            branches:
+              only: staging
+      - deploy-prod:
+          requires:
+            - build
