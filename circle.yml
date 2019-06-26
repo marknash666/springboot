@@ -1,19 +1,17 @@
 machine:
   java:
-      version: openjdk8
- 
+      version: oraclejdk8
+  environment:
+      ANDROID_HOME: /usr/local/android-sdk-linux
+
 dependencies:
   pre:
-   - curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/build_chain.sh && chmod u+x build_chain.sh
-  - bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/ci/download_bin.sh) -b master
-  - echo "127.0.0.1:4 agency1 1,2,3" > ipconf
-  - ./build_chain.sh -e bin/fisco-bcos -f ipconf -p 30300,20200,8545
-  - ./nodes/127.0.0.1/start_all.sh
-  - cp nodes/127.0.0.1/sdk/* src/main/resources/
-  - ./gradlew verGJF
+    - mkdir -p "$ANDROID_HOME/licenses"
+    - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
+    - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
 
 
-  override: 
+  override:
     - echo y | android update sdk --no-ui --filter "android-25"
     - echo y | android update sdk --no-ui --filter "build-tools-25.0.2"
     - echo y | android update sdk --no-ui --filter "extra-android-m2repository"
