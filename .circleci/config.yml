@@ -1,70 +1,38 @@
 version: 2
 jobs:
   build:
-    docker:    
-    - image: ubuntu:14.04
-
-    working_directory: ~/my-project
-    environment:
-      TEST_REPORTS: /tmp/test-reports
-    steps:   
-
-      - run:
-          command: echo 127.0.0.1 devhost | sudo tee -a /etc/hosts
-
-      # Create Postgres users and database
-      # Note the YAML heredoc '|' for nicer formatting
-      - run: |
-          sudo -u root createuser -h localhost --superuser ubuntu &&
-          sudo createdb -h localhost test_db
-      
-      - run:          
-          command: |
-            curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/build_chain.sh && chmod u+x build_chain.sh
-      bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/ci/download_bin.sh) -b master
-      echo "127.0.0.1:4 agency1 1,2,3" > ipconf
-      ./build_chain.sh -e bin/fisco-bcos -f ipconf -p 30300,20200,8545
-      ./nodes/127.0.0.1/start_all.sh
-       cp nodes/127.0.0.1/sdk/* src/main/resources/
-       ./gradlew verGJF
-          
-
-      # Save artifacts
-      - store_artifacts:
-          path: /tmp/artifacts
-          destination: build
-
-      # Upload test results
-      - store_test_results:
-          path: /tmp/test-reports
-
-  deploy-stage:
     docker:
-      - image: ubuntu:14.04
-    working_directory: /tmp/my-project
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
     steps:
-      - run:
-          name: Deploy springboot
-          command: |
-          ./gradlew build   
+      - checkout
 
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
-workflows:
-  version: 2
-  build-deploy:
-    jobs:
-      - build:
-          filters:
-            branches:
-              ignore:
-                - develop
-                - /feature-.*/
-      - deploy-stage:
-          requires:
-            - build
-          filters:
-            branches:
-              only: staging
-      - deploy-prod:
-          requires:
-            - build
+      - run: gradle dependencies
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      # run tests!
+      - run: gradle test
