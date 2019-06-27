@@ -127,7 +127,7 @@ public class LAGCreditController {
         return null;
     }
 
-    @RequestMapping(value = "/deploy", method = RequestMethod.GET)
+    @RequestMapping(value = "/deployLAG", method = RequestMethod.GET)
     public String deploy_web() {
         LAGCredit lagCredit = deploy();
         JSONObject result = new JSONObject();
@@ -136,7 +136,7 @@ public class LAGCreditController {
     }
 
     @RequestMapping(
-            value = "/transfer",
+            value = "/transferLAG",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
     public String transfer_web(@RequestBody TransferParam param) {
