@@ -1,6 +1,5 @@
 package org.fisco.bcos;
 
-
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
@@ -10,11 +9,7 @@ import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
 import org.fisco.bcos.web3j.tx.gas.StaticGasProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -77,13 +72,6 @@ public class VehicleMaintenanceController {
         return result.toString();
     }
 
-    @Data
-    static class TransferParam {
-
-        String address;
-        String approved;
-    }
-
     @RequestMapping(
             value = "/addApprovedMaintenanceShop",
             method = RequestMethod.POST,
@@ -100,5 +88,12 @@ public class VehicleMaintenanceController {
         JSONObject result = new JSONObject();
         result.put("msg", "The Addition of Approved MaintenanceShopls address failed.");
         return result.toString();
+    }
+
+    @Data
+    static class TransferParam {
+
+        String address;
+        String approved;
     }
 }
