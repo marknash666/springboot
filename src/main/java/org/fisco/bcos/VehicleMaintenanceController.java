@@ -1,7 +1,10 @@
 package org.fisco.bcos;
 
+import java.math.BigInteger;
+import javax.jws.soap.InitParam;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.fisco.bcos.constants.GasConstants;
 import org.fisco.bcos.temp.VehicleQuery;
@@ -64,6 +67,60 @@ public class VehicleMaintenanceController {
         return false;
     }
 
+    @RequestMapping(
+            value = "/manufactureInit",
+            method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public boolean manufactureInit(@RequestBody InitParam param) {
+        try {
+            VehicleQuery vehiclequery = load(param.address);
+            log.info("VehicleMaintenance address is {}", vehiclequery.getContractAddress());
+            vehiclequery.ManufactureInit(param.vin, "23232323").send();
+
+            return true;
+        } catch (Exception e) {
+            log.error(
+                    "Initiation of the VehicleInfo of "
+                            + param.vin
+                            + param.originInfo
+                            + " failed: {}",
+                    e.getMessage());
+        }
+        return false;
+    }
+
+    @Data
+    static class InitParam {
+        String address;
+        String vin;
+        String originInfo;
+    }
+
+    @RequestMapping(
+            value = "/updateVehicleMaintenance",
+            method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public boolean updateVehicleMaintenance(@RequestBody UpdateParam param) {
+        try {
+            VehicleQuery vehiclequery = load(param.address);
+            vehiclequery.updateVehicleMaintenance(param.vin, param.remarks, param.info).send();
+            return true;
+        } catch (Exception e) {
+            log.error(
+                    "Update of the Maintenance record of " + param.vin + " failed: {}",
+                    e.getMessage());
+        }
+        return false;
+    }
+
+    @Data
+    static class UpdateParam {
+        String address;
+        String vin;
+        String remarks;
+        String info;
+    }
+
     @RequestMapping(value = "/deploy", method = RequestMethod.GET)
     public String deploy_web() {
         VehicleQuery vehiclequery = deploy();
@@ -76,8 +133,7 @@ public class VehicleMaintenanceController {
             value = "/addApprovedMaintenanceShop",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public String deploy_web(@RequestBody TransferParam param) {
-
+    public String addApproved_web(@RequestBody AddApprovedParam param) {
         boolean state = addApprovedMaintenanceShop(param.address, param.approved);
         if (state) {
             String response1 = ("Successfully add an approved address of MaintenanceShop");
@@ -91,9 +147,39 @@ public class VehicleMaintenanceController {
     }
 
     @Data
-    static class TransferParam {
-
+    static class AddApprovedParam {
         String address;
         String approved;
+    }
+
+    @RequestMapping(
+            value = "/getVehicleTotalInfo",
+            method = RequestMethod.GET,
+            produces = "application/json;charset=UTF-8")
+    public String getVehicleTotalInfo(
+            @RequestParam("address") String creditAddress, @RequestParam("VIN") String VIN) {
+        try {
+            VehicleQuery vehiclequery = load(creditAddress);
+            BigInteger numsofrecords = vehiclequery.getNumsOfRecords(VIN).send();
+            BigInteger index = BigInteger.valueOf(0);
+            JSONObject result = new JSONObject();
+            result.put("ManufactureInfo", vehiclequery.getVehicleManufacturingInfo(VIN).send());
+            JSONArray jsona = new JSONArray();
+            for (;
+                    numsofrecords != index;
+                index=index.add(BigInteger.valueOf(1))) {
+                JSONObject temp = new JSONObject();
+                temp.put("MaintenanceInfo", vehiclequery.getInfo(VIN, index).send());
+                temp.put("remark", vehiclequery.getRemark(VIN, index).send());
+                temp.put("MaintenanceShopAddress", vehiclequery.getAddress(VIN, index).send());
+                jsona.add(temp);
+
+            }
+            result.put("Records", jsona);
+            return result.toString();
+        } catch (Exception e) {
+            log.error("getVehicleTotalInfo failed: {}", e.getMessage());
+        }
+        return null;
     }
 }
