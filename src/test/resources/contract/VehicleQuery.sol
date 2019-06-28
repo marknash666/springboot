@@ -29,7 +29,7 @@ contract VehicleQuery is VehicleUpdate {
         require( VINtoVehicle[VIN].initialized == 1,"This VIN is currently invalid,please check the number carefully");
         return targetcar.records.length;
     }
-
+    
     //index为维修记录的下标,获取维修备注信息
      function getRemark(string memory VIN, uint index) public view returns (string memory) {
         Vehicle memory targetcar = VINtoVehicle[VIN];
@@ -43,8 +43,15 @@ contract VehicleQuery is VehicleUpdate {
         require( VINtoVehicle[VIN].initialized == 1,"This VIN is currently invalid,please check the number carefully");
         return targetcar.records[index]._time;
     }
-
-
+    
+    function getTotalInfo(string memory VIN, uint index) public view returns (string memory,string memory,address,uint) {
+        Vehicle memory targetcar = VINtoVehicle[VIN];
+        require( VINtoVehicle[VIN].initialized == 1,"This VIN is currently invalid,please check the number carefully");
+        return (targetcar.records[index]._info,targetcar.records[index]._remarks,targetcar.records[index]._MaintenanceShop,targetcar.records[index]._time);
+    }
+    
+    
     
 }
+
 

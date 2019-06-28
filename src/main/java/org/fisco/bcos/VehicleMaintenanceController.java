@@ -9,6 +9,7 @@ import org.fisco.bcos.constants.GasConstants;
 import org.fisco.bcos.temp.VehicleQuery;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
+import org.fisco.bcos.web3j.tuples.generated.Tuple4;
 import org.fisco.bcos.web3j.tx.gas.StaticGasProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -165,14 +166,16 @@ public class VehicleMaintenanceController {
             result.put("ManufactureInfo", vehiclequery.getVehicleManufacturingInfo(VIN).send());
             JSONArray jsona = new JSONArray();
             for (; !numsofrecords.equals(index); index = index.add(BigInteger.valueOf(1))) {
-                log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
+                // log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
                 JSONObject temp = new JSONObject();
-                temp.put("MaintenanceInfo", vehiclequery.getInfo(VIN, index).send());
-                temp.put("remark", vehiclequery.getRemark(VIN, index).send());
-                temp.put("MaintenanceShopAddress", vehiclequery.getAddress(VIN, index).send());
-                temp.put("TimeStamp", vehiclequery.getTimeStamp(VIN, index).send());
+                Tuple4<String, String, String, BigInteger> response =
+                        vehiclequery.getTotalInfo(VIN, index).send();
+                temp.put("MaintenanceInfo", response.getValue1());
+                temp.put("remark", response.getValue2());
+                temp.put("MaintenanceShopAddress", response.getValue3());
+                temp.put("TimeStamp", response.getValue4());
                 jsona.add(temp);
-                log.info("getVehicleTotalInfo failed+" + temp);
+                // log.info("getVehicleTotalInfo failed+" + temp);
             }
             result.put("Records", jsona);
             return result.toString();
