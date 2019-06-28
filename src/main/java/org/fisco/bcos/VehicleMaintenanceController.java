@@ -1,7 +1,6 @@
 package org.fisco.bcos;
 
 import java.math.BigInteger;
-import javax.jws.soap.InitParam;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -165,15 +164,15 @@ public class VehicleMaintenanceController {
             JSONObject result = new JSONObject();
             result.put("ManufactureInfo", vehiclequery.getVehicleManufacturingInfo(VIN).send());
             JSONArray jsona = new JSONArray();
-            for (;
-                    numsofrecords != index;
-                index=index.add(BigInteger.valueOf(1))) {
+            for (; !numsofrecords.equals(index); index = index.add(BigInteger.valueOf(1))) {
+                log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
                 JSONObject temp = new JSONObject();
                 temp.put("MaintenanceInfo", vehiclequery.getInfo(VIN, index).send());
                 temp.put("remark", vehiclequery.getRemark(VIN, index).send());
                 temp.put("MaintenanceShopAddress", vehiclequery.getAddress(VIN, index).send());
+                temp.put("TimeStamp", vehiclequery.getTimeStamp(VIN, index).send());
                 jsona.add(temp);
-
+                log.info("getVehicleTotalInfo failed+" + temp);
             }
             result.put("Records", jsona);
             return result.toString();
