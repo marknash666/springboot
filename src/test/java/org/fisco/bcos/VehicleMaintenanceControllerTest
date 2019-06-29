@@ -1,0 +1,28 @@
+package org.fisco.bcos;
+
+import java.math.BigInteger;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.fisco.bcos.constants.GasConstants;
+import org.fisco.bcos.temp.VehicleQuery;
+import org.fisco.bcos.web3j.crypto.Credentials;
+import org.fisco.bcos.web3j.protocol.Web3j;
+import org.fisco.bcos.web3j.tuples.generated.Tuple4;
+import org.fisco.bcos.web3j.tx.gas.StaticGasProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+public class VehichleMantenanceControllerTest extends BaseTest{
+
+    @Autowired private Web3j web3j;
+    @Autowired private Credentials credentials;
+
+    vehicleMaintenanceControllerTest() throws Exception {
+        controller = new VehicleMaintenanceController(web3j,credentials);
+        assertTrue(web3j==controller);
+
+    }
+
+}
