@@ -63,3 +63,22 @@ configurations {
 		extendsFrom annotationProcessor
 	}
 }
+
+
+
+jacoco {
+	toolVersion = '0.8.1'
+	reportsDir = file("$buildDir/jacocoReport")
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		csv.enabled false
+		html.enabled false
+
+		xml.destination file("${buildDir}/reports/jacoco/jacocoReport/jacocoXml.xml")
+		csv.destination file("${buildDir}/reports/jacoco/jacocoReport/jacocoCsv.csv")
+		html.destination file("${buildDir}/reports/jacoco/jacocoReport/jacocoHtml")
+	}
+}
