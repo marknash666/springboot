@@ -33,5 +33,5 @@ script: |
   ./gradlew verGJF
   ./gradlew build
 
-after_sucess:
-  - npm run coveralls
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
