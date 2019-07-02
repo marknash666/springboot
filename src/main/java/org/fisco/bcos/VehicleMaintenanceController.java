@@ -1,7 +1,6 @@
 package org.fisco.bcos;
 
 import java.math.BigInteger;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -78,10 +77,11 @@ public class VehicleMaintenanceController {
     public TransactionReceipt manufactureInit_web(@RequestBody InitParam param) {
         try {
             VehicleQuery vehiclequery = load(param.address);
-            TransactionReceipt receipt=vehiclequery.ManufactureInit(param.vin, param.originInfo).send();
-            log.info("23233 ",receipt.isStatusOK());
-            log.info("23233 ",receipt.getOutput());
-            log.info("23233 ",receipt.getStatus());
+            TransactionReceipt receipt =
+                    vehiclequery.ManufactureInit(param.vin, param.originInfo).send();
+            log.info("23233 ", receipt.isStatusOK());
+            log.info("23233 ", receipt.getOutput());
+            log.info("23233 ", receipt.getStatus());
             return receipt;
 
         } catch (Exception e) {
@@ -102,9 +102,10 @@ public class VehicleMaintenanceController {
         String originInfo;
 
         @JsonCreator
-        public InitParam(@JsonProperty("address") String address,
-                         @JsonProperty("vin") String vin,
-                         @JsonProperty("originInfo") String originInfo) {
+        public InitParam(
+                @JsonProperty("address") String address,
+                @JsonProperty("vin") String vin,
+                @JsonProperty("originInfo") String originInfo) {
             this.address = address;
             this.vin = vin;
             this.originInfo = originInfo;
@@ -118,7 +119,10 @@ public class VehicleMaintenanceController {
     public TransactionReceipt updateVehicleMaintenance(@RequestBody UpdateParam param) {
         try {
             VehicleQuery vehiclequery = load(param.address);
-            TransactionReceipt state = vehiclequery.updateVehicleMaintenance(param.vin, param.remarks, param.info).send();
+            TransactionReceipt state =
+                    vehiclequery
+                            .updateVehicleMaintenance(param.vin, param.remarks, param.info)
+                            .send();
             return state;
         } catch (Exception e) {
             log.error(
@@ -151,10 +155,10 @@ public class VehicleMaintenanceController {
     public TransactionReceipt addApproved_web(@RequestBody AddApprovedParam param) {
         VehicleQuery vehiclequery = load(param.address);
         try {
-            TransactionReceipt state = vehiclequery.addApprovedMaintenanceShop(param.approved).send();
+            TransactionReceipt state =
+                    vehiclequery.addApprovedMaintenanceShop(param.approved).send();
             return state;
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
 
         }
         JSONObject result = new JSONObject();
@@ -183,7 +187,7 @@ public class VehicleMaintenanceController {
             result.put("ManufactureInfo", vehiclequery.getVehicleManufacturingInfo(VIN).send());
             JSONArray jsona = new JSONArray();
             for (; !numsofrecords.equals(index); index = index.add(BigInteger.valueOf(1))) {
-                 //log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
+                // log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
                 JSONObject temp = new JSONObject();
                 Tuple4<String, String, String, BigInteger> response =
                         vehiclequery.getTotalInfo(VIN, index).send();
@@ -192,7 +196,7 @@ public class VehicleMaintenanceController {
                 temp.put("MaintenanceShopAddress", response.getValue3());
                 temp.put("TimeStamp", response.getValue4());
                 jsona.add(temp);
-                //log.info("getVehicleTotalInfo failed+" + temp);
+                // log.info("getVehicleTotalInfo failed+" + temp);
             }
             result.put("Records", jsona);
             return result.toString();
