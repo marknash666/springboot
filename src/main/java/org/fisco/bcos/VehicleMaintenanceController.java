@@ -1,8 +1,8 @@
 package org.fisco.bcos;
 
-import java.math.BigInteger;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigInteger;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;

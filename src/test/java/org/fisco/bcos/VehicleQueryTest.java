@@ -1,18 +1,15 @@
 package org.fisco.bcos;
 
-import org.fisco.bcos.constants.GasConstants;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigInteger;
 import org.fisco.bcos.temp.VehicleQuery;
-import org.fisco.bcos.VehicleMaintenanceController;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
-import org.fisco.bcos.web3j.tx.gas.StaticGasProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.math.BigInteger;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class VehicleQueryTest extends BaseTest {
 
