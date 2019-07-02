@@ -1,6 +1,9 @@
 package org.fisco.bcos;
 
 import java.math.BigInteger;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -9,6 +12,7 @@ import org.fisco.bcos.constants.GasConstants;
 import org.fisco.bcos.temp.VehicleQuery;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
+import org.fisco.bcos.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.fisco.bcos.web3j.tuples.generated.Tuple4;
 import org.fisco.bcos.web3j.tx.gas.StaticGasProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,13 +75,15 @@ public class VehicleMaintenanceController {
             value = "/manufactureInit",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public boolean manufactureInit(@RequestBody InitParam param) {
+    public TransactionReceipt manufactureInit_web(@RequestBody InitParam param) {
         try {
             VehicleQuery vehiclequery = load(param.address);
-            log.info("VehicleMaintenance address is {}", vehiclequery.getContractAddress());
-            vehiclequery.ManufactureInit(param.vin, "23232323").send();
+            TransactionReceipt receipt=vehiclequery.ManufactureInit(param.vin, param.originInfo).send();
+            log.info("23233 ",receipt.isStatusOK());
+            log.info("23233 ",receipt.getOutput());
+            log.info("23233 ",receipt.getStatus());
+            return receipt;
 
-            return true;
         } catch (Exception e) {
             log.error(
                     "Initiation of the VehicleInfo of "
@@ -86,7 +92,7 @@ public class VehicleMaintenanceController {
                             + " failed: {}",
                     e.getMessage());
         }
-        return false;
+        return null;
     }
 
     @Data
@@ -94,23 +100,32 @@ public class VehicleMaintenanceController {
         String address;
         String vin;
         String originInfo;
+
+        @JsonCreator
+        public InitParam(@JsonProperty("address") String address,
+                         @JsonProperty("vin") String vin,
+                         @JsonProperty("originInfo") String originInfo) {
+            this.address = address;
+            this.vin = vin;
+            this.originInfo = originInfo;
+        }
     }
 
     @RequestMapping(
             value = "/updateVehicleMaintenance",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public boolean updateVehicleMaintenance(@RequestBody UpdateParam param) {
+    public TransactionReceipt updateVehicleMaintenance(@RequestBody UpdateParam param) {
         try {
             VehicleQuery vehiclequery = load(param.address);
-            vehiclequery.updateVehicleMaintenance(param.vin, param.remarks, param.info).send();
-            return true;
+            TransactionReceipt state = vehiclequery.updateVehicleMaintenance(param.vin, param.remarks, param.info).send();
+            return state;
         } catch (Exception e) {
             log.error(
                     "Update of the Maintenance record of " + param.vin + " failed: {}",
                     e.getMessage());
         }
-        return false;
+        return null;
     }
 
     @Data
@@ -133,17 +148,18 @@ public class VehicleMaintenanceController {
             value = "/addApprovedMaintenanceShop",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public String addApproved_web(@RequestBody AddApprovedParam param) {
-        boolean state = addApprovedMaintenanceShop(param.address, param.approved);
-        if (state) {
-            String response1 = ("Successfully add an approved address of MaintenanceShop");
-            JSONObject result = new JSONObject();
-            result.put("msg", response1);
-            return result.toString();
+    public TransactionReceipt addApproved_web(@RequestBody AddApprovedParam param) {
+        VehicleQuery vehiclequery = load(param.address);
+        try {
+            TransactionReceipt state = vehiclequery.addApprovedMaintenanceShop(param.approved).send();
+            return state;
+        }catch (Exception e)
+        {
+
         }
         JSONObject result = new JSONObject();
         result.put("msg", "The Addition of Approved MaintenanceShopls address failed.");
-        return result.toString();
+        return null;
     }
 
     @Data
@@ -159,6 +175,7 @@ public class VehicleMaintenanceController {
     public String getVehicleTotalInfo(
             @RequestParam("address") String creditAddress, @RequestParam("VIN") String VIN) {
         try {
+
             VehicleQuery vehiclequery = load(creditAddress);
             BigInteger numsofrecords = vehiclequery.getNumsOfRecords(VIN).send();
             BigInteger index = BigInteger.valueOf(0);
@@ -166,7 +183,7 @@ public class VehicleMaintenanceController {
             result.put("ManufactureInfo", vehiclequery.getVehicleManufacturingInfo(VIN).send());
             JSONArray jsona = new JSONArray();
             for (; !numsofrecords.equals(index); index = index.add(BigInteger.valueOf(1))) {
-                // log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
+                 //log.info("getVehicleTotalInfo failed+" + index + numsofrecords);
                 JSONObject temp = new JSONObject();
                 Tuple4<String, String, String, BigInteger> response =
                         vehiclequery.getTotalInfo(VIN, index).send();
@@ -175,7 +192,7 @@ public class VehicleMaintenanceController {
                 temp.put("MaintenanceShopAddress", response.getValue3());
                 temp.put("TimeStamp", response.getValue4());
                 jsona.add(temp);
-                // log.info("getVehicleTotalInfo failed+" + temp);
+                //log.info("getVehicleTotalInfo failed+" + temp);
             }
             result.put("Records", jsona);
             return result.toString();
