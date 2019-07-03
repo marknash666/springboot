@@ -27,8 +27,26 @@ public class VehicleMaintenanceController {
 
     private String userKey;
 
-    public void changeUser(String userKey) throws Exception {
+    @RequestMapping(
+            value = "/changeUser",
+            method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public void changeUser(@RequestBody KeyParam param) throws Exception {
+        _changeUser(param.userKey);
+    }
+
+    public void _changeUser(String userKey) {
         this.userKey = userKey;
+    }
+
+    @Data
+    static class KeyParam {
+        String userKey;
+
+        @JsonCreator
+        public KeyParam(@JsonProperty("userKey") String userKey) {
+            this.userKey = userKey;
+        }
     }
 
     public Credentials getCredentials() throws Exception {
@@ -45,7 +63,8 @@ public class VehicleMaintenanceController {
         credentials = credentials_1;
     }
 
-    public VehicleOwnership deploy() {
+    public VehicleOwnership deploy() throws Exception {
+        credentials = getCredentials();
         VehicleOwnership vehiclequery = null;
         try {
             vehiclequery =
@@ -139,7 +158,7 @@ public class VehicleMaintenanceController {
     }
 
     @RequestMapping(value = "/deploy", method = RequestMethod.GET)
-    public String deploy_web() {
+    public String deploy_web() throws Exception {
         VehicleOwnership vehiclequery = deploy();
         JSONObject result = new JSONObject();
         result.put("address", vehiclequery.getContractAddress());

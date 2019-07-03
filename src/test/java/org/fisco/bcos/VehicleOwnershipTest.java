@@ -1,7 +1,10 @@
 package org.fisco.bcos;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.String;
 import java.math.BigInteger;
+import lombok.Data;
 import org.fisco.bcos.temp.VehicleOwnership;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
@@ -20,11 +23,23 @@ public class VehicleOwnershipTest extends BaseTest {
     static VehicleOwnership vehiclequery;
     static BigInteger time;
 
+    @Data
+    static class KeyParam {
+        String userKey;
+
+        @JsonCreator
+        public KeyParam(@JsonProperty("userKey") String userKey) {
+            this.userKey = userKey;
+        }
+    }
+
     // deploy contract VehicleOwnership and check the facturingInfo
     @Before
     @Test
     public void deployAndCallVehicle() throws Exception {
+
         VMC = new VehicleMaintenanceController(web3j, credentials);
+        VMC._changeUser("3bed914595c159cbce70ec5fb6aff3d6797e0c5ee5a7a9224a21cae8932d84a4");
         vehiclequery = VMC.deploy();
         System.out.println(vehiclequery.getContractAddress());
         vehiclequery.ManufactureInit("123456", "large and luxurious").send();
