@@ -1,17 +1,18 @@
 package org.fisco.bcos;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.math.BigInteger;
 
+import java.lang.String;
 //import com.sun.tools.internal.ws.wsdl.document.jaxws.Exception;
 import org.fisco.bcos.temp.VehicleOwnership;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
+import org.fisco.bcos.web3j.tuples.generated.Tuple4;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.junit.Assert.*;
 
 public class VehicleOwnershipTest extends BaseTest {
 
@@ -68,5 +69,56 @@ public class VehicleOwnershipTest extends BaseTest {
         BigInteger timestamp = vehiclequery.getTimeStamp("123456", new BigInteger("1")).send();
         String remark = vehiclequery.getRemark("123456", new BigInteger("2")).send();
         assertTrue(time.compareTo(timestamp) == 0);
+    }
+
+    @Test
+    public void testExistence() throws Exception {
+        String VIN = "123456";
+        boolean exists = vehiclequery.getExistence(VIN).send();
+        assertTrue(exists);
+
+        VIN = "345";
+        exists = vehiclequery.getExistence(VIN).send();
+        assertFalse(exists);
+    }
+
+    @Test
+    public void testAddressAndOwnerOf() throws Exception {
+        String VIN = "123456";
+        BigInteger index = new BigInteger("0");
+
+        assertEquals(vehiclequery.getAddress(VIN, index).send(), vehiclequery.ownerOf(VIN).send());
+    }
+
+    @Test
+    public void testTotalInfo() throws Exception {
+        String VIN = "123456";
+        BigInteger index = new BigInteger("0");
+        Tuple4<String, String, String, BigInteger> a = vehiclequery.getTotalInfo(VIN, index).send();
+        assertEquals(a.getValue1(), "replace the bumper"); // info
+        assertEquals(a.getValue2(), "the vehicle is ok"); // remark
+        String address = vehiclequery.ownerOf(VIN).send();
+        assertEquals(a.getValue3(), address); // shop address
+        time = vehiclequery.getTimeStamp("123456", new BigInteger("0")).send();
+        assertEquals(a.getValue4(), time); // time
+    }
+
+    @Test
+    public void testBalanceOf() throws Exception {
+        String VIN = "123456";
+        String address = vehiclequery.ownerOf(VIN).send();
+        assertEquals(vehiclequery.balanceOf(address).send(), new BigInteger("1"));
+    }
+
+    @Test
+    public void testTransferTo() throws Exception {
+        String VIN = "123456";
+        String address = vehiclequery.ownerOf(VIN).send();
+
+        String toaddress = "123";
+        vehiclequery.transfer(toaddress, VIN).send();
+
+        assertEquals(vehiclequery.balanceOf(address).send(), new BigInteger("0"));
+        assertEquals(vehiclequery.ownerOf(VIN).send(), "0x0000000000000000000000000000000000000123");
     }
 }
