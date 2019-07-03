@@ -28,7 +28,7 @@ public class VehicleMaintenanceController {
     private String userKey;
 
     public void changeUser(String userKey) throws Exception {
-       this.userKey=userKey;
+        this.userKey = userKey;
     }
 
     public Credentials getCredentials() throws Exception {
@@ -216,7 +216,8 @@ public class VehicleMaintenanceController {
             method = RequestMethod.GET,
             produces = "application/json;charset=UTF-8")
     public String balanceOf(
-            @RequestParam("address") String creditAddress, @RequestParam("useraddress") String userAddress)
+            @RequestParam("address") String creditAddress,
+            @RequestParam("useraddress") String userAddress)
             throws Exception {
         VehicleOwnership vehiclequery = load(creditAddress);
         JSONObject result = new JSONObject();
@@ -238,25 +239,22 @@ public class VehicleMaintenanceController {
         return result.toString();
     }
 
-
     @Data
     static class TransferParam {
         String address;
         String vin;
         String toaddress;
     }
+
     @RequestMapping(
             value = "/transfer",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public String transfer(
-            @RequestBody TransferParam  param)
-            throws Exception {
+    public String transfer(@RequestBody TransferParam param) throws Exception {
 
         VehicleOwnership vehiclequery = load(param.address);
 
-        TransactionReceipt receipt =
-                vehiclequery.transfer(param.toaddress, param.vin).send();
+        TransactionReceipt receipt = vehiclequery.transfer(param.toaddress, param.vin).send();
         JSONObject result = new JSONObject();
         result.put("status", receipt.isStatusOK());
         return result.toString();
@@ -268,17 +266,15 @@ public class VehicleMaintenanceController {
         String vin;
         String toaddress;
     }
+
     @RequestMapping(
             value = "/approve",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public String approve(
-            @RequestBody ApproveParam  param)
-            throws Exception {
+    public String approve(@RequestBody ApproveParam param) throws Exception {
 
         VehicleOwnership vehiclequery = load(param.address);
-        TransactionReceipt receipt =
-                vehiclequery.approve(param.toaddress, param.vin).send();
+        TransactionReceipt receipt = vehiclequery.approve(param.toaddress, param.vin).send();
         JSONObject result = new JSONObject();
         result.put("status", receipt.isStatusOK());
         return result.toString();
@@ -289,17 +285,15 @@ public class VehicleMaintenanceController {
         String address;
         String vin;
     }
+
     @RequestMapping(
             value = "/takeOwnership",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public String takeOwnership(
-            @RequestBody TakeOwnershipParam  param)
-            throws Exception {
+    public String takeOwnership(@RequestBody TakeOwnershipParam param) throws Exception {
 
         VehicleOwnership vehiclequery = load(param.address);
-        TransactionReceipt receipt =
-                vehiclequery.takeOwnership(param.vin).send();
+        TransactionReceipt receipt = vehiclequery.takeOwnership(param.vin).send();
         JSONObject result = new JSONObject();
         result.put("status", receipt.isStatusOK());
         return result.toString();

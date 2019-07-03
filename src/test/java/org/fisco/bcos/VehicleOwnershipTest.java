@@ -1,9 +1,7 @@
 package org.fisco.bcos;
 
-import java.math.BigInteger;
-
 import java.lang.String;
-//import com.sun.tools.internal.ws.wsdl.document.jaxws.Exception;
+import java.math.BigInteger;
 import org.fisco.bcos.temp.VehicleOwnership;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
@@ -119,6 +117,7 @@ public class VehicleOwnershipTest extends BaseTest {
         vehiclequery.transfer(toaddress, VIN).send();
 
         assertEquals(vehiclequery.balanceOf(address).send(), new BigInteger("0"));
-        assertEquals(vehiclequery.ownerOf(VIN).send(), "0x0000000000000000000000000000000000000123");
+        assertEquals(
+                vehiclequery.ownerOf(VIN).send(), "0x0000000000000000000000000000000000000123");
     }
 }
