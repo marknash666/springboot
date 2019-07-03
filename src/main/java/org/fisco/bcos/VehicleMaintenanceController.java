@@ -210,4 +210,98 @@ public class VehicleMaintenanceController {
         result.put("existence", vehiclequery.getExistence(VIN).send());
         return result.toString();
     }
+
+    @RequestMapping(
+            value = "/balanceOf",
+            method = RequestMethod.GET,
+            produces = "application/json;charset=UTF-8")
+    public String balanceOf(
+            @RequestParam("address") String creditAddress, @RequestParam("useraddress") String userAddress)
+            throws Exception {
+        VehicleOwnership vehiclequery = load(creditAddress);
+        JSONObject result = new JSONObject();
+        result.put("balance", vehiclequery.balanceOf(userAddress).send());
+
+        return result.toString();
+    }
+
+    @RequestMapping(
+            value = "/ownerOf",
+            method = RequestMethod.GET,
+            produces = "application/json;charset=UTF-8")
+    public String ownerOf(
+            @RequestParam("address") String creditAddress, @RequestParam("vin") String VIN)
+            throws Exception {
+        VehicleOwnership vehiclequery = load(creditAddress);
+        JSONObject result = new JSONObject();
+        result.put("owner", vehiclequery.ownerOf(VIN).send());
+        return result.toString();
+    }
+
+
+    @Data
+    static class TransferParam {
+        String address;
+        String vin;
+        String toaddress;
+    }
+    @RequestMapping(
+            value = "/transfer",
+            method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public String transfer(
+            @RequestBody TransferParam  param)
+            throws Exception {
+
+        VehicleOwnership vehiclequery = load(param.address);
+
+        TransactionReceipt receipt =
+                vehiclequery.transfer(param.toaddress, param.vin).send();
+        JSONObject result = new JSONObject();
+        result.put("status", receipt.isStatusOK());
+        return result.toString();
+    }
+
+    @Data
+    static class ApproveParam {
+        String address;
+        String vin;
+        String toaddress;
+    }
+    @RequestMapping(
+            value = "/approve",
+            method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public String approve(
+            @RequestBody ApproveParam  param)
+            throws Exception {
+
+        VehicleOwnership vehiclequery = load(param.address);
+        TransactionReceipt receipt =
+                vehiclequery.approve(param.toaddress, param.vin).send();
+        JSONObject result = new JSONObject();
+        result.put("status", receipt.isStatusOK());
+        return result.toString();
+    }
+
+    @Data
+    static class TakeOwnershipParam {
+        String address;
+        String vin;
+    }
+    @RequestMapping(
+            value = "/takeOwnership",
+            method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public String takeOwnership(
+            @RequestBody TakeOwnershipParam  param)
+            throws Exception {
+
+        VehicleOwnership vehiclequery = load(param.address);
+        TransactionReceipt receipt =
+                vehiclequery.takeOwnership(param.vin).send();
+        JSONObject result = new JSONObject();
+        result.put("status", receipt.isStatusOK());
+        return result.toString();
+    }
 }

@@ -11,5 +11,11 @@ channel-service:
   org-id: fisco # agency name
 
 user-key:
-  user-key: 9099ffe712c486fd0f255844de197b8c763f38ca542ba3038974dc04b3ae48ec # user key
+  user-key: 9099ffe712c486fd0f255844de197b8c763f38ca542ba3038974dc04b3ae48ec
+
+#9099ffe712c486fd0f255844de197b8c763f38ca542ba3038974dc04b3ae48ec
+
+#603cd8f3bdf765f684e61250ec20ef3117618a398b342772fb6a8a1fabdb139f
+
+# user key
 
