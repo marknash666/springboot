@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.fisco.bcos.constants.GasConstants;
-import org.fisco.bcos.temp.VehicleQuery;
+import org.fisco.bcos.temp.VehicleOwnership;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
 import org.fisco.bcos.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -29,11 +29,11 @@ public class VehicleMaintenanceController {
         credentials = credentials_1;
     }
 
-    public VehicleQuery deploy() {
-        VehicleQuery vehiclequery = null;
+    public VehicleOwnership deploy() {
+        VehicleOwnership vehiclequery = null;
         try {
             vehiclequery =
-                    VehicleQuery.deploy(
+                    VehicleOwnership.deploy(
                                     web3j,
                                     credentials,
                                     new StaticGasProvider(
@@ -47,9 +47,9 @@ public class VehicleMaintenanceController {
         return vehiclequery;
     }
 
-    public VehicleQuery load(String creditAddress) {
-        VehicleQuery vehiclequery =
-                VehicleQuery.load(
+    public VehicleOwnership load(String creditAddress) {
+        VehicleOwnership vehiclequery =
+                VehicleOwnership.load(
                         creditAddress,
                         web3j,
                         credentials,
@@ -57,32 +57,19 @@ public class VehicleMaintenanceController {
         return vehiclequery;
     }
 
-    public boolean addApprovedMaintenanceShop(String creditAddress, String approvedAddress) {
-        try {
-            VehicleQuery vehiclequery = load(creditAddress);
-            vehiclequery.addApprovedMaintenanceShop(approvedAddress).send();
-            return true;
-        } catch (Exception e) {
-            log.error(
-                    "The Addition of Approved MaintenanceShopls address failed: {}",
-                    e.getMessage());
-        }
-        return false;
-    }
-
     @RequestMapping(
             value = "/manufactureInit",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public TransactionReceipt manufactureInit_web(@RequestBody InitParam param) {
+    public String manufactureInit(@RequestBody InitParam param) {
+        JSONObject result = new JSONObject();
         try {
-            VehicleQuery vehiclequery = load(param.address);
+            VehicleOwnership vehicleOwnership = load(param.address);
+            log.info("asdadsdadadada" + param.vin + param.originInfo);
             TransactionReceipt receipt =
-                    vehiclequery.ManufactureInit(param.vin, param.originInfo).send();
-            log.info("23233 ", receipt.isStatusOK());
-            log.info("23233 ", receipt.getOutput());
-            log.info("23233 ", receipt.getStatus());
-            return receipt;
+                    vehicleOwnership.ManufactureInit(param.vin, param.originInfo).send();
+            result.put("status", receipt.isStatusOK());
+            return result.toString();
 
         } catch (Exception e) {
             log.error(
@@ -92,7 +79,8 @@ public class VehicleMaintenanceController {
                             + " failed: {}",
                     e.getMessage());
         }
-        return null;
+        result.put("status", false);
+        return result.toString();
     }
 
     @Data
@@ -116,20 +104,13 @@ public class VehicleMaintenanceController {
             value = "/updateVehicleMaintenance",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public TransactionReceipt updateVehicleMaintenance(@RequestBody UpdateParam param) {
-        try {
-            VehicleQuery vehiclequery = load(param.address);
-            TransactionReceipt state =
-                    vehiclequery
-                            .updateVehicleMaintenance(param.vin, param.remarks, param.info)
-                            .send();
-            return state;
-        } catch (Exception e) {
-            log.error(
-                    "Update of the Maintenance record of " + param.vin + " failed: {}",
-                    e.getMessage());
-        }
-        return null;
+    public String updateVehicleMaintenance(@RequestBody UpdateParam param) throws Exception {
+        VehicleOwnership vehiclequery = load(param.address);
+        TransactionReceipt receipt =
+                vehiclequery.updateVehicleMaintenance(param.vin, param.remarks, param.info).send();
+        JSONObject result = new JSONObject();
+        result.put("status", receipt.isStatusOK());
+        return result.toString();
     }
 
     @Data
@@ -142,7 +123,7 @@ public class VehicleMaintenanceController {
 
     @RequestMapping(value = "/deploy", method = RequestMethod.GET)
     public String deploy_web() {
-        VehicleQuery vehiclequery = deploy();
+        VehicleOwnership vehiclequery = deploy();
         JSONObject result = new JSONObject();
         result.put("address", vehiclequery.getContractAddress());
         return result.toString();
@@ -152,18 +133,12 @@ public class VehicleMaintenanceController {
             value = "/addApprovedMaintenanceShop",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public TransactionReceipt addApproved_web(@RequestBody AddApprovedParam param) {
-        VehicleQuery vehiclequery = load(param.address);
-        try {
-            TransactionReceipt state =
-                    vehiclequery.addApprovedMaintenanceShop(param.approved).send();
-            return state;
-        } catch (Exception e) {
-
-        }
+    public String addApproved_web(@RequestBody AddApprovedParam param) throws Exception {
+        VehicleOwnership vehiclequery = load(param.address);
+        TransactionReceipt receipt = vehiclequery.addApprovedMaintenanceShop(param.approved).send();
         JSONObject result = new JSONObject();
-        result.put("msg", "The Addition of Approved MaintenanceShopls address failed.");
-        return null;
+        result.put("status", receipt.isStatusOK());
+        return result.toString();
     }
 
     @Data
@@ -180,7 +155,7 @@ public class VehicleMaintenanceController {
             @RequestParam("address") String creditAddress, @RequestParam("VIN") String VIN) {
         try {
 
-            VehicleQuery vehiclequery = load(creditAddress);
+            VehicleOwnership vehiclequery = load(creditAddress);
             BigInteger numsofrecords = vehiclequery.getNumsOfRecords(VIN).send();
             BigInteger index = BigInteger.valueOf(0);
             JSONObject result = new JSONObject();
@@ -204,5 +179,18 @@ public class VehicleMaintenanceController {
             log.error("getVehicleTotalInfo failed: {}", e.getMessage());
         }
         return null;
+    }
+
+    @RequestMapping(
+            value = "/getExistence",
+            method = RequestMethod.GET,
+            produces = "application/json;charset=UTF-8")
+    public String getExistence(
+            @RequestParam("address") String creditAddress, @RequestParam("VIN") String VIN)
+            throws Exception {
+        VehicleOwnership vehiclequery = load(creditAddress);
+        JSONObject result = new JSONObject();
+        result.put("existence", vehiclequery.getExistence(VIN).send());
+        return result.toString();
     }
 }

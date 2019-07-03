@@ -4,22 +4,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
-import org.fisco.bcos.temp.VehicleQuery;
+import org.fisco.bcos.temp.VehicleOwnership;
 import org.fisco.bcos.web3j.crypto.Credentials;
 import org.fisco.bcos.web3j.protocol.Web3j;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class VehicleQueryTest extends BaseTest {
+public class VehicleOwnershipTest extends BaseTest {
 
     @Autowired private Web3j web3j;
     @Autowired private Credentials credentials;
     static VehicleMaintenanceController VMC;
-    static VehicleQuery vehiclequery;
+    static VehicleOwnership vehiclequery;
     static BigInteger time;
 
-    // deploy contract VehicleQuery and check the facturingInfo
+    // deploy contract VehicleOwnership and check the facturingInfo
     @Before
     @Test
     public void deployAndCallVehicle() throws Exception {
