@@ -10,6 +10,7 @@ import net.sf.json.JSONObject;
 import org.fisco.bcos.constants.GasConstants;
 import org.fisco.bcos.temp.VehicleOwnership;
 import org.fisco.bcos.web3j.crypto.Credentials;
+import org.fisco.bcos.web3j.crypto.gm.GenCredential;
 import org.fisco.bcos.web3j.protocol.Web3j;
 import org.fisco.bcos.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.fisco.bcos.web3j.tuples.generated.Tuple4;
@@ -22,7 +23,22 @@ import org.springframework.web.bind.annotation.*;
 public class VehicleMaintenanceController {
 
     @Autowired private Web3j web3j;
-    @Autowired private Credentials credentials;
+    private Credentials credentials;
+
+    private String userKey;
+
+    public void changeUser(String userKey) throws Exception {
+       this.userKey=userKey;
+    }
+
+    public Credentials getCredentials() throws Exception {
+        log.info("userKey : {}", userKey);
+        Credentials credentials = GenCredential.create(userKey);
+        if (credentials == null) {
+            throw new Exception("create Credentials failed");
+        }
+        return credentials;
+    }
 
     VehicleMaintenanceController(Web3j web3js_1, Credentials credentials_1) {
         web3j = web3js_1;
@@ -47,7 +63,8 @@ public class VehicleMaintenanceController {
         return vehiclequery;
     }
 
-    public VehicleOwnership load(String creditAddress) {
+    public VehicleOwnership load(String creditAddress) throws Exception {
+        credentials = getCredentials();
         VehicleOwnership vehiclequery =
                 VehicleOwnership.load(
                         creditAddress,
