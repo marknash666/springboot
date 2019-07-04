@@ -320,4 +320,39 @@ public class VehicleMaintenanceController {
         result.put("status", receipt.isStatusOK());
         return result.toString();
     }
+
+
+    @RequestMapping(
+            value = "/getCarsByOwner",
+            method = RequestMethod.GET,
+            produces = "application/json;charset=UTF-8")
+    public String getCarsByOwner(
+            @RequestParam("address") String creditAddress, @RequestParam("useraddress") String user)
+            throws Exception {
+        VehicleOwnership vehiclequery = load(creditAddress);
+        JSONObject result = new JSONObject();
+        //vehiclequery.ownerOf(VIN).send();
+
+        JSONArray jsona = new JSONArray();
+        BigInteger carCount = vehiclequery.carCount().send();
+        System.out.println(carCount);
+        BigInteger index= new BigInteger("0");
+        for ( ; !carCount.equals(index) ; index = index.add(BigInteger.valueOf(1))) {
+            JSONObject temp = new JSONObject();
+
+            String ownerAddress = vehiclequery.getOwnerByIndex(index).send();
+            if(!ownerAddress.equals(user))
+                continue;
+            String vin = vehiclequery.getVINByIndex(index).send();
+            String info = vehiclequery.getVehicleManufacturingInfo(vin).send();
+
+            temp.put("info", info);
+            temp.put("vin", vin);
+            jsona.add(temp);
+        }
+
+        result.put("cars", jsona);
+
+        return result.toString();
+    }
 }

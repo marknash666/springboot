@@ -7,7 +7,8 @@ contract VehicleUpdate {
     address[]  internal ApprovedMaintenanceShop = new address[](0);//授权维修点地址集合
     address internal Administrator;//合约部署者，管理员
 
-    uint internal carCount = 0;
+    uint public carCount = 0;
+
     mapping (uint => Vehicle) internal  cars;
     //以车架号对应车辆索引
     mapping (string => uint) internal  VINtoVehicle;
@@ -21,6 +22,8 @@ contract VehicleUpdate {
         ApprovedMaintenanceShop.push(msg.sender);
         Administrator = msg.sender;
     }
+
+
 
     // 保养记录类
     struct MaintenanceRecord {
@@ -39,6 +42,15 @@ contract VehicleUpdate {
         MaintenanceRecord[] records;//车辆所拥有的维修保养信息
     }
 
+    function getVINByIndex(uint index) public view returns(string memory){
+        require(index<carCount, "index out of limit!");
+        return cars[index].VIN;
+    }
+
+    function getOwnerByIndex(uint index) public view returns(address){
+            require(index<carCount);
+            return carToOwner[index];
+    }
 
     //只有允许的维修点才能执行的修饰函数
     modifier onlyMaintenanceShop(address){
@@ -77,10 +89,10 @@ contract VehicleUpdate {
         uint index = carCount;
         carCount += 1;
         VINtoVehicle[VIN] = index;
-
         Vehicle storage car = cars[index];
         VINExist[VIN] = true;
 
+        car.VIN = VIN;
         car.ManufacturingInfo =originInfo;
         ownerCarCount[msg.sender] += 1;
 
