@@ -31,8 +31,8 @@ after_success:
 - bash <(curl -s https://codecov.io/bash)
 - ssh ubuntu@62.234.149.22 "./build_script"
 before_install:
-
 - openssl aes-256-cbc -K $encrypted_122dc616a05b_key -iv $encrypted_122dc616a05b_iv
-  -in authorized_keys.enc -out ~\/.ssh/authorized_keys -d
+  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
+ - chmod 600 ~/.ssh/id_rsa
 addons:
   ssh_known_hosts: 62.234.149.22
