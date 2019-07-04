@@ -29,7 +29,7 @@ script: |2
   ./gradlew build
 after_success:
 - bash <(curl -s https://codecov.io/bash)
-- ssh ubuntu@62.234.149.22 "./build_script"
+- ssh ubuntu@62.234.149.22 "~/backend/springboot/build_script"
 before_install:
 - openssl aes-256-cbc -K $encrypted_122dc616a05b_key -iv $encrypted_122dc616a05b_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
