@@ -31,6 +31,7 @@ verifyGoogleJavaFormat {
     exclude '**/temp/*.java'
     exclude '**/solidity/*.java'
     exclude '**/VehicleOwnershipTest.java'
+    exclude '**/VMControlerTest.java'    
 }
 
 check.dependsOn -= tasks['verifyGoogleJavaFormat']
