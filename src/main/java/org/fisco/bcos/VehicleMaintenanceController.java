@@ -31,8 +31,11 @@ public class VehicleMaintenanceController {
             value = "/changeUser",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public void changeUser(@RequestBody KeyParam param) throws Exception {
+    public String changeUser(@RequestBody KeyParam param) throws Exception {
         _changeUser(param.userKey);
+        JSONObject result = new JSONObject();
+        result.put("status", true);
+        return result.toString();
     }
 
     public void _changeUser(String userKey) {
