@@ -321,28 +321,24 @@ public class VehicleMaintenanceController {
         return result.toString();
     }
 
-
     @RequestMapping(
             value = "/getCarsByOwner",
             method = RequestMethod.GET,
             produces = "application/json;charset=UTF-8")
-    public String getCarsByOwner(
-            @RequestParam("address") String creditAddress)
-            throws Exception {
+    public String getCarsByOwner(@RequestParam("address") String creditAddress) throws Exception {
         VehicleOwnership vehiclequery = load(creditAddress);
         JSONObject result = new JSONObject();
-        //vehiclequery.ownerOf(VIN).send();
+        // vehiclequery.ownerOf(VIN).send();
         String user = vehiclequery.getUserAddress().send();
         JSONArray jsona = new JSONArray();
         BigInteger carCount = vehiclequery.carCount().send();
         System.out.println(carCount);
-        BigInteger index= new BigInteger("0");
-        for ( ; !carCount.equals(index) ; index = index.add(BigInteger.valueOf(1))) {
+        BigInteger index = new BigInteger("0");
+        for (; !carCount.equals(index); index = index.add(BigInteger.valueOf(1))) {
             JSONObject temp = new JSONObject();
 
             String ownerAddress = vehiclequery.getOwnerByIndex(index).send();
-            if(!ownerAddress.equals(user))
-                continue;
+            if (!ownerAddress.equals(user)) continue;
             String vin = vehiclequery.getVINByIndex(index).send();
             String info = vehiclequery.getVehicleManufacturingInfo(vin).send();
 
@@ -356,14 +352,11 @@ public class VehicleMaintenanceController {
         return result.toString();
     }
 
-
     @RequestMapping(
             value = "/getUserAddress",
             method = RequestMethod.GET,
             produces = "application/json;charset=UTF-8")
-    public String getUserAddress(
-            @RequestParam("address") String creditAddress)
-            throws Exception {
+    public String getUserAddress(@RequestParam("address") String creditAddress) throws Exception {
         VehicleOwnership vehiclequery = load(creditAddress);
         JSONObject result = new JSONObject();
         result.put("address", vehiclequery.getUserAddress().send());
