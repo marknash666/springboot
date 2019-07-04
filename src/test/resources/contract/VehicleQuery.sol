@@ -30,6 +30,10 @@ contract VehicleQuery is VehicleUpdate , ERC721 {
         return targetcar.records[index]._info;
     }
 
+    function getUserAddress() public view returns (address){
+            return msg.sender;
+     }
+
      //index为维修记录的下标,获取维修点区块链地址
     function getAddress(string memory VIN, uint index) public view returns (address) {
         bool exist = VINExist[VIN];

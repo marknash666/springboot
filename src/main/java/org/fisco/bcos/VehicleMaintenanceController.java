@@ -327,12 +327,12 @@ public class VehicleMaintenanceController {
             method = RequestMethod.GET,
             produces = "application/json;charset=UTF-8")
     public String getCarsByOwner(
-            @RequestParam("address") String creditAddress, @RequestParam("useraddress") String user)
+            @RequestParam("address") String creditAddress)
             throws Exception {
         VehicleOwnership vehiclequery = load(creditAddress);
         JSONObject result = new JSONObject();
         //vehiclequery.ownerOf(VIN).send();
-
+        String user = vehiclequery.getUserAddress().send();
         JSONArray jsona = new JSONArray();
         BigInteger carCount = vehiclequery.carCount().send();
         System.out.println(carCount);
@@ -352,6 +352,21 @@ public class VehicleMaintenanceController {
         }
 
         result.put("cars", jsona);
+
+        return result.toString();
+    }
+
+
+    @RequestMapping(
+            value = "/getUserAddress",
+            method = RequestMethod.GET,
+            produces = "application/json;charset=UTF-8")
+    public String getUserAddress(
+            @RequestParam("address") String creditAddress)
+            throws Exception {
+        VehicleOwnership vehiclequery = load(creditAddress);
+        JSONObject result = new JSONObject();
+        result.put("address", vehiclequery.getUserAddress().send());
 
         return result.toString();
     }
