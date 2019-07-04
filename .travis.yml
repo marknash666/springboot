@@ -1,29 +1,23 @@
-# safelist
 branches:
   only:
-      - /.*/
-
-
+  - "/.*/"
 matrix:
   fast_finish: true
   include:
-      - os: linux
-        dist: xenial
-        sudo: required
-
+  - os: linux
+    dist: xenial
+    sudo: required
 language: java
 jdk:
-  - openjdk8
-
+- openjdk8
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-   
-script: |
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+script: |2
 
   curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/build_chain.sh && chmod u+x build_chain.sh
   bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/ci/download_bin.sh) -b master
@@ -33,6 +27,13 @@ script: |
   cp nodes/127.0.0.1/sdk/* src/main/resources/
   ./gradlew verGJF
   ./gradlew build
-
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
+- ssh ubuntu@62.234.149.22 "./build_script"
+before_install:
+
+- openssl aes-256-cbc -K $encrypted_122dc616a05b_key -iv $encrypted_122dc616a05b_iv
+  -in authorized_keys.enc -out ~\/.ssh/authorized_keys -d
+   - chmod 600 ~/.ssh/id_rsa
+addons:
+  ssh_known_hosts: 62.234.149.22
