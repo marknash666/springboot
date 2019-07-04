@@ -3,6 +3,7 @@ branches:
   only:
       - /.*/
 
+
 matrix:
   fast_finish: true
   include:
